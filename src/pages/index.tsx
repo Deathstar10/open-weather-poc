@@ -47,6 +47,7 @@ export default function Home() {
         <input
           type="text"
           value={location}
+          placeholder="Enter a location"
           className="px-4 py-2 border-2 mt-5 mb-2 border-solid border-[#10a37f] rounded placeholder:text-[#8e8ea0] placeholder:opacity:100"
           onChange={(e) => setLocation(e.target.value)}
         />

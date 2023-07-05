@@ -55,6 +55,10 @@ export default async function handler(
       `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${process.env.OPEN_WEATHER_API_KEY}`
     );
 
+    if (response.status === 404) {
+      throw new ApplicationError("Please Enter a valid city name");
+    }
+
     if (!response.ok) {
       throw new ApplicationError(`Fetch error ${response.statusText}`);
     }
