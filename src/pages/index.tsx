@@ -9,9 +9,35 @@ interface WeatherData {
 
 export default function Home() {
   const [location, setLocation] = useState("");
+  const [showInfo, setWeatherVisibilty] = useState(false);
+  const [weatherData, setWeatherData] = useState<WeatherData>();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    try {
+      const response = await fetch("/api/weather", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ location: location }),
+      });
+
+      const data = await response.json();
+
+      if (response.status !== 200) {
+        throw (
+          data || new Error(`request failed with status ${response.status}`)
+        );
+      }
+
+      setWeatherVisibilty(true);
+      setWeatherData(data);
+    } catch (err: any) {
+      alert(err.error);
+      console.log(err);
+    }
   }
   return (
     <div className="flex flex-col w-64 mx-auto">
