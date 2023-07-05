@@ -1,3 +1,4 @@
+import WeatherInfo from "@/components/WeatherInfo";
 import { useState } from "react";
 
 interface WeatherData {
@@ -55,6 +56,17 @@ export default function Home() {
           className="bg-[#10a37f] text-white rounded px-4 py-2 cursor-pointer hover:bg-[#106852]"
         />
       </form>
+      {showInfo && weatherData && (
+        <>
+          <p className="text-lg">{location}</p>
+          <WeatherInfo
+            windSpeed={weatherData.windSpeed}
+            temperature={weatherData.temperature}
+            humidity={weatherData.humidity}
+            description={weatherData.description}
+          />
+        </>
+      )}
     </div>
   );
 }

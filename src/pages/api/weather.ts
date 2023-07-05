@@ -13,6 +13,28 @@ interface Error {
   error: string;
   data: any;
 }
+
+const weatherAPISchema = z.object({
+  main: z.object({
+    temp: z.number(),
+    feels_like: z.number(),
+    temp_min: z.number(),
+    temp_max: z.number(),
+    pressure: z.number(),
+    humidity: z.number(),
+  }),
+  wind: z.object({
+    speed: z.number(),
+  }),
+  weather: z
+    .object({
+      id: z.number(),
+      main: z.string(),
+      description: z.string(),
+    })
+    .array(),
+});
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<WeatherData | Error>
@@ -29,25 +51,28 @@ export default async function handler(
     }
 
     // fetch the data from the open weather API
-    const res = await fetch(
+    const response = await fetch(
       `https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${process.env.OPEN_WEATHER_API_KEY}`
     );
 
-    if (!res.ok) {
-      throw new ApplicationError(`Fetch error ${res.statusText}`);
+    if (!response.ok) {
+      throw new ApplicationError(`Fetch error ${response.statusText}`);
     }
 
-    const data: WeatherData = await res.json();
+    const data = await response.json();
+
+    // we need to take our data and parse it into our required fields
+    const parsedData = weatherAPISchema.parse(data);
 
     // return the necessary data
     const weatherData = {
-      windSpeed: data.windSpeed,
-      temperature: data.temperature,
-      description: data.description,
-      humidity: data.humidity,
+      windSpeed: parsedData.wind.speed,
+      temperature: parsedData.main.temp,
+      description: parsedData.weather[0].description,
+      humidity: parsedData.main.humidity,
     };
 
-    return weatherData;
+    res.status(200).json(weatherData);
   } catch (err) {
     if (err instanceof ApplicationError) {
       res.status(500).json({ error: err.message, data: err.data });
